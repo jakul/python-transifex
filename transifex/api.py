@@ -8,28 +8,21 @@ from django.template.defaultfilters import slugify
 from transifex.exceptions import TransifexAPIException
 
 class TransifexAPI(object):
-    username = None
-    password = None
-    host = ''
-    
-    def __init__(self, username=None, password=None, host=None):
+    def __init__(self, username, password, host):
         """
-        @param username optional, the username to use when connecting
-        @param password optional, the password to use when connecting
-        @param host optional, the host string
-        """
-        if username is not None:
-            self.username = username
-        if password is not None:
-            self.password = password
-        if host is not None:
-            self.host = host
+        @param username the username to use when connecting
+        @param password the password to use when connecting
+        @param host the host string
+        """            
+        self._username = username
+        self._password = password
+        self._host = host
             
-        if self.host.endswith('/'):
-            self.host = self.host[:-1]
+        if self._host.endswith('/'):
+            self._host = self._host[:-1]
         
-        self.auth = (self.username, self.password)
-        self.base_api_url = '%s/api/2' % (self.host)
+        self._auth = (self._username, self._password)
+        self._base_api_url = '%s/api/2' % (self._host)
 
     def new_project(self, slug, name=None, source_language_code=None,
                     outsource_project_name=None):
@@ -55,7 +48,7 @@ class TransifexAPI(object):
         if source_language_code is None:
             source_language_code = 'en-gb'
         
-        url = '%s/projects/' % self.base_api_url
+        url = '%s/projects/' % self._base_api_url
         headers = {'content-type': 'application/json'}
         data = {
             'name': name, 'slug': slug,
@@ -76,7 +69,7 @@ class TransifexAPI(object):
 #        maintainers
         
         response = requests.post(
-             url, data=json.dumps(data), auth=self.auth, headers=headers,
+             url, data=json.dumps(data), auth=self._auth, headers=headers,
              
         )
         
@@ -100,8 +93,8 @@ class TransifexAPI(object):
            
         @raises `TransifexAPIException`
         """
-        url = '%s/project/%s/resources/' % (self.base_api_url, project_slug)
-        response = requests.get(url, auth=self.auth)
+        url = '%s/project/%s/resources/' % (self._base_api_url, project_slug)
+        response = requests.get(url, auth=self._auth)
         
         if response.status_code != requests.codes['OK']:
             raise TransifexAPIException(response)
@@ -127,7 +120,7 @@ class TransifexAPI(object):
         @raises `TransifexAPIException`
         @raises `IOError`
         """
-        url = '%s/project/%s/resources/' % (self.base_api_url, project_slug)
+        url = '%s/project/%s/resources/' % (self._base_api_url, project_slug)
         content = open(path_to_pofile, 'r').read()
         __, filename = os.path.split(path_to_pofile)
         if resource_slug is None:
@@ -150,7 +143,7 @@ class TransifexAPI(object):
 #        category
 
         response = requests.post(
-             url, data=json.dumps(data), auth=self.auth, headers=headers,
+             url, data=json.dumps(data), auth=self._auth, headers=headers,
         )
         if response.status_code != requests.codes['CREATED']:
             raise TransifexAPIException(response)
@@ -177,13 +170,13 @@ class TransifexAPI(object):
         @raises `IOError`
         """
         url = '%s/project/%s/resource/%s/content/' % (
-            self.base_api_url, project_slug, resource_slug
+            self._base_api_url, project_slug, resource_slug
         )
         content = open(path_to_pofile, 'r').read()
         headers = {'content-type': 'application/json'}
         data = {'content': content}
         response = requests.put(
-             url, data=json.dumps(data), auth=self.auth, headers=headers,
+             url, data=json.dumps(data), auth=self._auth, headers=headers,
         )
         
         if response.status_code != requests.codes['OK']:
@@ -215,13 +208,13 @@ class TransifexAPI(object):
         @raises `IOError`
         """
         url = '%s/project/%s/resource/%s/translation/%s/' % (
-            self.base_api_url, project_slug, resource_slug, language_code
+            self._base_api_url, project_slug, resource_slug, language_code
         )
         content = open(path_to_pofile, 'r').read()
         headers = {'content-type': 'application/json'}
         data = {'content': content}
         response = requests.put(
-             url, data=json.dumps(data), auth=self.auth, headers=headers,
+             url, data=json.dumps(data), auth=self._auth, headers=headers,
         )
         
         if response.status_code != requests.codes['OK']:
@@ -251,13 +244,13 @@ class TransifexAPI(object):
         @raises `IOError`
         """
         url = '%s/project/%s/resource/%s/translation/%s/' % (
-            self.base_api_url, project_slug, resource_slug, language_code
+            self._base_api_url, project_slug, resource_slug, language_code
         )
         output_path = path_to_pofile
         query = {
             'file': ''         
         }
-        response = requests.get(url, auth=self.auth, params=query)
+        response = requests.get(url, auth=self._auth, params=query)
         if response.status_code != requests.codes['OK']:
             raise TransifexAPIException(response)
         else:
@@ -265,3 +258,9 @@ class TransifexAPI(object):
             for line in response.iter_content():
                 handle.write(line)
             handle.close()
+
+    def ping(self):
+        """
+        Pings the API
+        """
+        raise Exception
