@@ -43,6 +43,9 @@ class TransifexAPI(object):
         @raises `TransifexAPIException`
            if project was not created properly
         """
+        
+        if slug != slugify(slug):
+            raise TransifexAPIException('%r is not a valid slug')
         if name is None:
             name = slug
         if source_language_code is None:
@@ -125,6 +128,9 @@ class TransifexAPI(object):
         __, filename = os.path.split(path_to_pofile)
         if resource_slug is None:
             resource_slug = slugify(filename)
+        else:
+            if resource_slug != slugify(resource_slug):
+                raise TransifexAPIException('%r is not a valid slug')
             
         if resource_name is None:
             resource_name = resource_slug
@@ -183,6 +189,26 @@ class TransifexAPI(object):
             raise TransifexAPIException(response)
         else:
             return json.loads(response.content)
+        
+    def delete_resource(self, project_slug, resource_slug):
+        """
+        Deletes the given resource
+        
+        @param project_slug
+            the project slug
+        @param resource_slug
+            the resource slug
+
+        @return None
+        
+        @raises `TransifexAPIException`
+        """
+        url = '%s/project/%s/resource/%s/' % (
+            self._base_api_url, project_slug, resource_slug
+        )
+        response = requests.delete(url, auth=self._auth)
+        if response.status_code != requests.codes['NO_CONTENT']:
+            raise TransifexAPIException(response)        
             
     def new_translation(self, project_slug, resource_slug, language_code,
                         path_to_pofile):

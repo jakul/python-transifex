@@ -35,6 +35,20 @@ class TransifexAPITest(TestCase):
         
         mock_requests.side_effect = side_effect 
         self.api.new_project(slug='abc')
+    
+    def test_new_project_bad_slug(self):
+        """
+        Test the `new_project` api call when the slug is invalid
+        """
+        self.assertRaises(TransifexAPIException, self.api.new_project,
+            slug='.'
+        )
+        self.assertRaises(TransifexAPIException, self.api.new_project,
+            slug='/'
+        )
+        self.assertRaises(TransifexAPIException, self.api.new_project,
+            slug='%@$'
+        )
         
     @patch('requests.post')
     def test_new_project_with_optional_args(self, mock_requests):
@@ -155,6 +169,26 @@ class TransifexAPITest(TestCase):
         mock_open.side_effect = side_effect
         self.assertRaises(IOError, self.api.new_resource,
             project_slug='abc', path_to_pofile='/aaa/file.po'
+        )
+    
+    @patch('__builtin__.open', create=True)
+    def test_new_resource_bad_slug(self, mock_open):
+        """
+        Test the `new_resource` api call when the slug is invalid
+        """
+        file_contents = 'aaaaaa\nggggg'
+        mock_open.return_value = MagicMock(spec=file)
+        mock_open.return_value.read = lambda: file_contents
+        
+        self.assertRaises(TransifexAPIException, self.api.new_resource,
+            project_slug='aaa', resource_slug='.', path_to_pofile='/aaa/file.po'
+        )
+        self.assertRaises(TransifexAPIException, self.api.new_resource,
+            project_slug='aaa', resource_slug='/', path_to_pofile='/aaa/file.po'
+        )
+        self.assertRaises(TransifexAPIException, self.api.new_resource,
+            project_slug='aaa', resource_slug='%@$',
+            path_to_pofile='/aaa/file.po'
         )
         
     @patch('__builtin__.open', create=True)
@@ -418,3 +452,40 @@ class TransifexAPITest(TestCase):
             path_to_pofile='/abc/pofile.po'
         )
         
+        
+        
+    @patch('requests.delete')
+    def test_delete_resource(self, mock_requests):
+        """
+        Test the `delete_resource` api call
+        """
+        
+        def side_effect(*args, **kwargs):
+            mock_response = Mock()
+            mock_response.status_code = 204
+            return mock_response
+
+        mock_requests.side_effect = side_effect
+        
+        self.api.delete_resource(project_slug='abc', resource_slug='def')
+        self.assertTrue(mock_requests.called)
+        
+    
+        
+    @patch('requests.delete')
+    def test_delete_resource_server_error(self, mock_requests):
+        """
+        Test the `delete_resource` api call when the transifex server
+        returns an error 
+        """
+        
+        def side_effect(*args, **kwargs):
+            response = Mock()
+            response.status_code = 404
+            return response
+        
+        mock_requests.side_effect = side_effect
+        self.assertRaises(
+            TransifexAPIException, self.api.delete_resource,
+            project_slug='abc', resource_slug='def'
+        )
