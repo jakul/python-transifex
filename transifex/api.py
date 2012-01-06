@@ -258,9 +258,3 @@ class TransifexAPI(object):
             for line in response.iter_content():
                 handle.write(line)
             handle.close()
-
-    def ping(self):
-        """
-        Pings the API
-        """
-        raise Exception
