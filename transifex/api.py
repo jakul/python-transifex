@@ -4,8 +4,8 @@ Transifex API
 import requests
 import json
 import os
-from django.template.defaultfilters import slugify
 from transifex.exceptions import TransifexAPIException
+from transifex.util import slugify
 
 class TransifexAPI(object):
     def __init__(self, username, password, host):

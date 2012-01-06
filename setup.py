@@ -12,7 +12,6 @@ setup(
     license='BSD',
     packages=find_packages(),
     tests_require=[
-        'django>=1.2,<1.4',
     ],
     include_package_data=True,
     classifiers=[
