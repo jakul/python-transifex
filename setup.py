@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='python-transifex',
-    version='0.0.1-dev',
+    version='0.0.2',
     description='A python api to transifex',
     long_description=open('README.rst').read(),
     author='Craig Blaszczyk',

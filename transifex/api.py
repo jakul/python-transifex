@@ -260,7 +260,8 @@ class TransifexAPI(object):
         @param resource_slug 
             The resource slug
         @param language_code
-            The language_code of the file
+            The language_code of the file.
+            This should be the *Transifex* language code
         @param path_to_pofile
             The path to the pofile which will be saved
             
@@ -284,7 +285,6 @@ class TransifexAPI(object):
             for line in response.iter_content():
                 handle.write(line)
             handle.close()
-            
             
     def list_languages(self, project_slug, resource_slug):
         """
@@ -313,7 +313,6 @@ class TransifexAPI(object):
             language['code'] for language in content['available_languages']
         ]
         return languages
-
 
     def project_exists(self, project_slug):
         """
