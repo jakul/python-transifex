@@ -6,6 +6,8 @@ import os
 from transifex import tests
 import sys
 
+sys.path.append(os.path.abspath(__file__))
+
 if __name__ == "__main__":
     if len(sys.argv) == 1:
         # Auto detect the tests to run

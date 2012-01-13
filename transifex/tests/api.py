@@ -489,3 +489,100 @@ class TransifexAPITest(TestCase):
             TransifexAPIException, self.api.delete_resource,
             project_slug='abc', resource_slug='def'
         )
+
+    @patch('requests.get')
+    def test_list_languages(self, mock_requests):
+        """
+        Test the `list_languages` api call
+        """
+        expected_languages = ['en_GB', 'it']
+        response_content = {
+            'slug': 'txo',
+            'mimetype': 'text/x-po',
+            'source_language_code': 'en',
+            'wordcount': 6160,
+            'total_entities': 1017,
+            'last_update': '2011-12-05 19:59:55',
+            'available_languages': [
+                {
+                    'code_aliases': ' ',
+                    'code': 'it',
+                    'name': 'Italian'
+                },
+                {
+                    'code_aliases': 'en-gb',
+                    'code': 'en_GB',
+                    'name': 'English (Great Britain)'
+                },
+            ],
+        }
+
+        def side_effect(*args, **kwargs):
+            response = Mock()
+            response.status_code = 200
+            response.content = json.dumps(response_content)
+            return response
+        
+        mock_requests.side_effect = side_effect 
+        languages = self.api.list_languages(
+            project_slug='abc', resource_slug='def'
+        )
+        self.assertEqual(sorted(expected_languages), sorted(languages))
+
+    @patch('requests.get')
+    def test_list_languages_404(self, mock_requests):
+        """
+        Test the `list_languages` api call when the project or resource is not
+        found
+        """
+        def side_effect(*args, **kwargs):
+            response = Mock()
+            response.status_code = 404
+            return response
+        
+        mock_requests.side_effect = side_effect 
+        self.assertRaises(
+            TransifexAPIException, self.api.list_languages, project_slug='abc',
+            resource_slug='defg'
+        )
+        
+    @patch('requests.get')
+    def test_project_exists(self, mock_requests):
+        """
+        Test the `test_project_exists` api call
+        """
+        def side_effect(*args, **kwargs):
+            response = Mock()
+            response.status_code = 200
+            return response
+
+        mock_requests.side_effect = side_effect
+        self.assertTrue(self.api.project_exists(project_slug='abc'))
+        
+    @patch('requests.get')
+    def test_project_exists_with_no_project(self, mock_requests):
+        """
+        Test the `test_project_exists` api call when the project doesn't exist
+        """
+        def side_effect(*args, **kwargs):
+            response = Mock()
+            response.status_code = 404
+            return response
+        
+        mock_requests.side_effect = side_effect
+        self.assertFalse(self.api.project_exists(project_slug='abc'))
+
+    @patch('requests.get')
+    def test_project_exists_with_error(self, mock_requests):
+        """
+        Test the `test_project_exists` api call when the api returns an error
+        """
+        def side_effect(*args, **kwargs):
+            response = Mock()
+            response.status_code = 400
+            return response
+        
+        mock_requests.side_effect = side_effect         
+        self.assertRaises(
+            TransifexAPIException, self.api.project_exists, project_slug='abc'
+        )

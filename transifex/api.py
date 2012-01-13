@@ -55,7 +55,7 @@ class TransifexAPI(object):
         headers = {'content-type': 'application/json'}
         data = {
             'name': name, 'slug': slug,
-            'source_language_code': source_language_code,
+            'source_language_code': source_language_code, 'description': name
         }
         if outsource_project_name is not None:
             data['outsource'] = outsource_project_name
@@ -256,13 +256,13 @@ class TransifexAPI(object):
         specified.
         
         @param project_slug
-            the project slug
+            The project slug
         @param resource_slug 
-            the resource slug
+            The resource slug
         @param language_code
-            the language_code of the file
+            The language_code of the file
         @param path_to_pofile
-            the path to the pofile which will be saved
+            The path to the pofile which will be saved
             
         @return None
             
@@ -284,3 +284,56 @@ class TransifexAPI(object):
             for line in response.iter_content():
                 handle.write(line)
             handle.close()
+            
+            
+    def list_languages(self, project_slug, resource_slug):
+        """
+        List all the languages available for a given resource in a project
+        
+        @param project_slug
+            The project slug
+        @param resource_slug
+            The resource slug
+            
+        @returns list
+            The language codes which this resource has translations 
+           
+        @raises `TransifexAPIException`
+        """
+        url = '%s/project/%s/resource/%s/' % (
+            self._base_api_url, project_slug, resource_slug
+        )
+        response = requests.get(url, auth=self._auth, params={'details':''})
+        
+        if response.status_code != requests.codes['OK']:
+            raise TransifexAPIException(response)
+        
+        content = json.loads(response.content)
+        languages = [
+            language['code'] for language in content['available_languages']
+        ]
+        return languages
+
+
+    def project_exists(self, project_slug):
+        """
+        Check if there is a project with the given slug registered with 
+        Transifex
+        
+        @param project_slug
+            The project slug
+            
+        @return Boolean
+           True is project exists
+           False if not
+        """
+        url = '%s/project/%s/' % (
+            self._base_api_url, project_slug
+        )
+        response = requests.get(url, auth=self._auth)
+        if response.status_code == requests.codes['OK']:
+            return True
+        elif response.status_code == requests.codes['NOT_FOUND']:
+            return False
+        else:
+            raise TransifexAPIException(response)
