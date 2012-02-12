@@ -102,7 +102,106 @@ class TransifexAPI(object):
         if response.status_code != requests.codes['OK']:
             raise TransifexAPIException(response)
         
+        return json.loads(response.content)     
+    
+    def list_projects(self):
+        """
+        List all the projects the user has access to.
+        This call can be slow, depending on the number of projects the user
+        has access to.
+            
+        @returns list of dictionaries with resources info
+            each dictionary may contain
+                slug
+                name
+                description
+                source_language_code
+           
+        @raises `TransifexAPIException`
+        """
+        url = '%s/projects/' % (self._base_api_url)
+        response = requests.get(url, auth=self._auth)
+        
+        if response.status_code != requests.codes['OK']:
+            raise TransifexAPIException(response)
+        
         return json.loads(response.content)
+    
+    def project_details(self, project_slug):
+        """
+        List details of the project    
+        
+        @param project_slug
+            the project slug
+            
+        @returns dictionaries with project info
+            each dictionary may contain
+                slug
+                name
+                description
+                source_language_code
+                long_description
+                homepage
+                feed
+                created
+                anyone_submit
+                bug_tracker
+                trans_instructions
+                a list of tags
+                outsource
+                a list of the maintainers' username
+                the username of the owner of the project
+                a list of the resources of the project containing the fields
+                    slug and name.
+                a list of language codes for the teams created for the project.
+           
+        @raises `TransifexAPIException`
+        """
+        url = '%s/project/%s/' % (self._base_api_url, project_slug)
+        params = {'details': ''}
+        response = requests.get(url, auth=self._auth, params=params)
+        
+        if response.status_code != requests.codes['OK']:
+            raise TransifexAPIException(response)
+        
+        return json.loads(response.content)    
+    
+    def resource_details(self, project_slug, resource_slug):
+        """
+        List details of the project    
+        
+        @param project_slug
+            the project slug
+        @param resource_slug
+            the resource slug
+            
+        @returns dictionary with resource info
+            The dictionary may contain
+                name
+                slug
+                i18n_type
+                a dictionary with the details for the source_language of the
+                    resource
+                created
+                available_languages
+                project_slug
+                wordcount
+                total_entities
+                accept_translations
+                last_update
+           
+        @raises `TransifexAPIException`
+        """
+        url = '%s/project/%s/resource/%s/' % (
+            self._base_api_url, project_slug, resource_slug
+        )
+        params = {'details': ''}
+        response = requests.get(url, auth=self._auth, params=params)
+        
+        if response.status_code != requests.codes['OK']:
+            raise TransifexAPIException(response)
+        
+        return json.loads(response.content)    
         
     def new_resource(self, project_slug, path_to_pofile, resource_slug=None,
                      resource_name=None):
@@ -155,16 +254,19 @@ class TransifexAPI(object):
             raise TransifexAPIException(response)
         
     def update_source_translation(self, project_slug, resource_slug,
-                                  path_to_pofile):
+                                  path_to_pofile=None, content=None):
         """
         Update the source translation for a give resource
         
         @param project_slug
-            the project slug
+            The project slug
         @param resource_slug
-            the resource slug
-        @param path_to_pofile
-            the path to the pofile which will be uploaded
+            The resource slug
+        @param path_to_pofile, optional
+            The path to the pofile which will be uploaded
+        @param content, optional
+            The content to be uploaded. If both are set, this parameter 
+            overrides the `path_to_pofile` parameter
 
         @return dictionary with info
             Info may include keys
@@ -178,7 +280,8 @@ class TransifexAPI(object):
         url = '%s/project/%s/resource/%s/content/' % (
             self._base_api_url, project_slug, resource_slug
         )
-        content = open(path_to_pofile, 'r').read()
+        if not content:
+            content = open(path_to_pofile, 'r').read()
         headers = {'content-type': 'application/json'}
         data = {'content': content}
         response = requests.put(
@@ -211,7 +314,7 @@ class TransifexAPI(object):
             raise TransifexAPIException(response)        
             
     def new_translation(self, project_slug, resource_slug, language_code,
-                        path_to_pofile):
+                        path_to_pofile=None, content=None):
         """
         Creates or updates the translation for the specified language
         
@@ -221,8 +324,11 @@ class TransifexAPI(object):
             the resource slug
         @param language_code
             the language_code of the file
-        @param path_to_pofile
+        @param path_to_pofile, optional
             the path to the pofile which will be uploaded
+        @param content, optional
+            The content to be uploaded. If both are set, this parameter 
+            overrides the `path_to_pofile` parameter
             
         @return dictionary with info
             Info may include keys
@@ -236,7 +342,8 @@ class TransifexAPI(object):
         url = '%s/project/%s/resource/%s/translation/%s/' % (
             self._base_api_url, project_slug, resource_slug, language_code
         )
-        content = open(path_to_pofile, 'r').read()
+        if content is None:
+            content = open(path_to_pofile, 'r').read()
         headers = {'content-type': 'application/json'}
         data = {'content': content}
         response = requests.put(
@@ -249,7 +356,7 @@ class TransifexAPI(object):
             return json.loads(response.content)
             
     def get_translation(self, project_slug, resource_slug, language_code,
-                        path_to_pofile):
+                        path_to_pofile=None):
         """
         Returns the requested translation, if it exists. The translation is
         returned as a serialized string, unless the GET parameter file is
@@ -261,10 +368,14 @@ class TransifexAPI(object):
             The resource slug
         @param language_code
             The language_code of the file
-        @param path_to_pofile
-            The path to the pofile which will be saved
+        @param path_to_pofile, optional
+            The path to the pofile which will be saved. If this paramter
+            is not provided then the content is returned from the function
             
         @return None
+            If path_to_pofile parameter is set
+        @return dictionary, {'content': '', 'mimetype': ''}
+            If path_to_pofile is None.
             
         @raises `TransifexAPIException`
         @raises `IOError`
@@ -272,18 +383,44 @@ class TransifexAPI(object):
         url = '%s/project/%s/resource/%s/translation/%s/' % (
             self._base_api_url, project_slug, resource_slug, language_code
         )
-        output_path = path_to_pofile
-        query = {
-            'file': ''         
-        }
-        response = requests.get(url, auth=self._auth, params=query)
+        params = {}
+        if path_to_pofile:
+            params['file'] = ''
+        response = requests.get(url, auth=self._auth, params=params)
         if response.status_code != requests.codes['OK']:
             raise TransifexAPIException(response)
         else:
-            handle = open(output_path, 'w')
-            for line in response.iter_content():
-                handle.write(line)
-            handle.close()
+            if not path_to_pofile:
+                return json.loads(response.content)
+            
+            with open(path_to_pofile, 'w') as handle:
+                for line in response.iter_content():
+                    handle.write(line)
+           
+                
+                        
+    def get_source_translation(self, project_slug, resource_slug):
+        """
+        Returns the source translation, if it exists. The translation is
+        returned as a string
+        
+        @param project_slug
+            The project slug
+        @param resource_slug 
+            The resource slug
+            
+        @return None
+            
+        @raises `TransifexAPIException`
+        """
+        url = '%s/project/%s/resource/%s/content/' % (
+            self._base_api_url, project_slug, resource_slug
+        )
+        response = requests.get(url, auth=self._auth)
+        if response.status_code != requests.codes['OK']:
+            raise TransifexAPIException(response)
+
+        return json.loads(response.content)['content']
             
             
     def list_languages(self, project_slug, resource_slug):

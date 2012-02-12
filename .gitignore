@@ -1,0 +1,9 @@
+.project
+
+.pydevproject
+
+run.py
+
+*.pyc
+
+v_env

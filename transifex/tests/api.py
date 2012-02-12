@@ -586,3 +586,24 @@ class TransifexAPITest(TestCase):
         self.assertRaises(
             TransifexAPIException, self.api.project_exists, project_slug='abc'
         )
+        
+    @patch('requests.get')
+    def test_projects(self, mock_requests):
+        """
+        Test the `list_projects` api call
+        """
+        response_content = [{
+            u'source_language_code': u'en', u'description': u'',
+            u'name': u'Z-Project', u'slug': u'Z-Project'
+        },
+        ]
+
+        def side_effect(*args, **kwargs):
+            response = Mock()
+            response.status_code = 200
+            response.content = json.dumps(response_content)
+            return response
+        
+        mock_requests.side_effect = side_effect 
+        resources = self.api.list_projects()
+        self.assertEqual(resources, response_content)
