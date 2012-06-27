@@ -1,8 +1,10 @@
 from setuptools import setup, find_packages
 
+from transifex import VERSION
+
 setup(
     name='python-transifex',
-    version='0.0.2',
+    version=VERSION,
     description='A python api to transifex',
     long_description=open('README.rst').read(),
     author='Craig Blaszczyk',
