@@ -15,7 +15,9 @@ setup(
     packages=find_packages(),
     tests_require=[
     ],
+    install_requires=open('requirements.txt').read(),
     include_package_data=True,
+    package_data={'':['version.txt']},
     classifiers=[
         'Environment :: Web Environment',
         'Framework :: Django',
