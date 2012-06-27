@@ -1,3 +1,5 @@
 dist/
 python_transifex.egg-info/
 
+# PyCharm editor files
+.idea
