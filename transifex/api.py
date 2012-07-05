@@ -329,7 +329,6 @@ class TransifexAPI(object):
         url = '%s/project/%s/' % (
             self._base_api_url, project_slug
         )
-        print self._auth
         response = requests.get(url, auth=self._auth)
         if response.status_code == requests.codes['OK']:
             return True
