@@ -1,10 +1,11 @@
 """
 Transifex API
 """
+import codecs
 import requests
 import json
 import os
-from transifex.exceptions import TransifexAPIException
+from transifex.exceptions import TransifexAPIException, InvalidSlugException
 from transifex.util import slugify
 
 class TransifexAPI(object):
@@ -45,7 +46,7 @@ class TransifexAPI(object):
         """
         
         if slug != slugify(slug):
-            raise TransifexAPIException('%r is not a valid slug')
+            raise InvalidSlugException('%r is not a valid slug' % (slug))
         if name is None:
             name = slug
         if source_language_code is None:
@@ -125,12 +126,15 @@ class TransifexAPI(object):
         """
         url = '%s/project/%s/resources/' % (self._base_api_url, project_slug)
         content = open(path_to_pofile, 'r').read()
+
         __, filename = os.path.split(path_to_pofile)
         if resource_slug is None:
             resource_slug = slugify(filename)
         else:
             if resource_slug != slugify(resource_slug):
-                raise TransifexAPIException('%r is not a valid slug')
+                raise InvalidSlugException(
+                    '%r is not a valid slug' % (resource_slug)
+                )
             
         if resource_name is None:
             resource_name = resource_slug
