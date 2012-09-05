@@ -1,4 +1,8 @@
+python-transifex
+----------------
+A python API to the Transifex translation service (www.transifex.com). This API wrapper makes it easier to communicate with Transifex. The wrapper does not expose all of the underlying functionality of the Transifex API.
 
+This wrapper is compatible with both www.transifex.com and Transifex Community Edition (self hosted).
 
 ChangeLog
 ---------
