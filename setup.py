@@ -13,9 +13,10 @@ setup(
     download_url='https://github.com/jakul/python-transifex/downloads',
     license='BSD',
     packages=find_packages(),
-    tests_require=[
+    tests_require=['mock',
     ],
-    install_requires=open('requirements.txt').read(),
+    install_requires=['requests',
+    ],
     include_package_data=True,
     classifiers=[
         'Environment :: Web Environment',
