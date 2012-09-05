@@ -2,7 +2,7 @@ from unittest import TestCase
 from transifex.api import TransifexAPI
 from mock import patch, Mock, MagicMock
 import json
-from transifex.exceptions import TransifexAPIException
+from transifex.exceptions import InvalidSlugException, TransifexAPIException
 import StringIO
 import requests
 from requests.models import Response
@@ -40,13 +40,13 @@ class TransifexAPITest(TestCase):
         """
         Test the `new_project` api call when the slug is invalid
         """
-        self.assertRaises(TransifexAPIException, self.api.new_project,
+        self.assertRaises(InvalidSlugException, self.api.new_project,
             slug='.'
         )
-        self.assertRaises(TransifexAPIException, self.api.new_project,
+        self.assertRaises(InvalidSlugException, self.api.new_project,
             slug='/'
         )
-        self.assertRaises(TransifexAPIException, self.api.new_project,
+        self.assertRaises(InvalidSlugException, self.api.new_project,
             slug='%@$'
         )
         
@@ -180,13 +180,13 @@ class TransifexAPITest(TestCase):
         mock_open.return_value = MagicMock(spec=file)
         mock_open.return_value.read = lambda: file_contents
         
-        self.assertRaises(TransifexAPIException, self.api.new_resource,
+        self.assertRaises(InvalidSlugException, self.api.new_resource,
             project_slug='aaa', resource_slug='.', path_to_pofile='/aaa/file.po'
         )
-        self.assertRaises(TransifexAPIException, self.api.new_resource,
+        self.assertRaises(InvalidSlugException, self.api.new_resource,
             project_slug='aaa', resource_slug='/', path_to_pofile='/aaa/file.po'
         )
-        self.assertRaises(TransifexAPIException, self.api.new_resource,
+        self.assertRaises(InvalidSlugException, self.api.new_resource,
             project_slug='aaa', resource_slug='%@$',
             path_to_pofile='/aaa/file.po'
         )
