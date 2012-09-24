@@ -6,6 +6,10 @@ This wrapper is compatible with both www.transifex.com and Transifex Community E
 
 ChangeLog
 ---------
+0.1.7
+=====
+* Downgrade requests version to ensure compatibility with current code
+
 0.1.6
 =====
 * Update setup.py to only include the actual requirements needed to install. Thanks to Toshio Kuratomi (https://github.com/jakul/python-transifex/pull/3)
