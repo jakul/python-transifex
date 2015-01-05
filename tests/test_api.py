@@ -3,9 +3,6 @@ from transifex.api import TransifexAPI
 from mock import patch, Mock, MagicMock
 import json
 from transifex.exceptions import InvalidSlugException, TransifexAPIException
-import StringIO
-import requests
-from requests.models import Response
 
 class TransifexAPITest(TestCase):
     
