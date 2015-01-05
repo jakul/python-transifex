@@ -1,4 +1,4 @@
-requests==0.12.1
+requests>=0.12.1
 
 # Test requirements
 mock==1.0.1
