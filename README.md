@@ -14,7 +14,7 @@ To connect to transifex:
     In [2]: t = TransifexAPI('username', 'password', 'http://transifex.com')
     
     In [3]: t.ping()
-    Out[3]: True
+    Out[3]: Truefsdfdsffsddf
 
 ### Projects
 #### Create a new public project
