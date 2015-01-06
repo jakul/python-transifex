@@ -140,13 +140,6 @@ class TransifexAPI(object):
             'name': resource_name, 'slug': resource_slug, 'content': content,
             'i18n_type': 'PO'
         }
-#        slug
-#        name
-#        accept_translations
-#        source_language
-#        mimetype
-#        content (in case of sending the content as one string)
-#        category
 
         response = requests.post(
              url, data=json.dumps(data), auth=self._auth, headers=headers,
