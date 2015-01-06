@@ -13,7 +13,7 @@ if sys.argv[-1] == 'publish-to-pypi':
 setup(
     name='python-transifex',
     version=VERSION,
-    description='A python api to transifex',
+    description='A Python API to the Transifex translation service (www.transifex.com).',
     author='Craig Blaszczyk',
     author_email='masterjakul@gmail.com',
     url='https://github.com/jakul/python-transifex',
