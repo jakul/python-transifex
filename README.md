@@ -3,6 +3,8 @@ A python API to the Transifex translation service (www.transifex.com). This API 
 
 This wrapper is compatible with both www.transifex.com and Transifex Community Edition (self hosted).
 
+[![build-status-image]][travis-url]
+
 ## Usage
 
 ### Authentication
@@ -83,3 +85,6 @@ scratch.
 To download the translations and store them in a local file run the following:
 
     In [13]: t.get_translation('helloworld5', 'pofilepo', 'pt-br', '/src/python-transifex/pofile_ptbr.po')
+
+[build-status-image]: https://api.travis-ci.org/jakul/python-transifex.svg?branch=master
+[travis-url]: https://travis-ci.org/jakul/python-transifex
