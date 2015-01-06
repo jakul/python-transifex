@@ -14,7 +14,8 @@ class TransifexAPI(object):
         @param username the username to use when connecting
         @param password the password to use when connecting
         @param host the host string
-        """            
+        """
+        #TODO: make host optional
         self._username = username
         self._password = password
         self._host = host
@@ -26,7 +27,8 @@ class TransifexAPI(object):
         self._base_api_url = '%s/api/2' % (self._host)
 
     def new_project(self, slug, name=None, source_language_code=None,
-                    outsource_project_name=None):
+                    outsource_project_name=None, private=False,
+                    repository_url=None):
         """
         Create a new project on transifex
         
@@ -38,13 +40,18 @@ class TransifexAPI(object):
             the source language code, defaults to 'en-gb'
         @param outsource_project_name (optional)
             the name of the project to outsource translation team management to
+        @param private (optional)
+            controls if this is created as a closed source or open-source
+            project, defaults to `False`
+        @param repository_url (optional)
+            The url for the repository. This is required if private is set to
+            False
             
         @returns None
            
         @raises `TransifexAPIException`
            if project was not created properly
         """
-        
         if slug != slugify(slug):
             raise InvalidSlugException('%r is not a valid slug' % (slug))
         if name is None:
@@ -56,30 +63,19 @@ class TransifexAPI(object):
         headers = {'content-type': 'application/json'}
         data = {
             'name': name, 'slug': slug,
-            'source_language_code': source_language_code, 'description': name
+            'source_language_code': source_language_code, 'description': name,
+            'private': private, 'repository_url': repository_url
         }
         if outsource_project_name is not None:
             data['outsource'] = outsource_project_name
-#        description
-#        long_description
-#        private
-#        homepage
-#        feed
-#        anyone_submit
-#        hidden
-#        bug_tracker
-#        trans_instructions
-#        tags
-#        maintainers
-        
+
         response = requests.post(
              url, data=json.dumps(data), auth=self._auth, headers=headers,
-             
         )
         
         if response.status_code != requests.codes['CREATED']:
             raise TransifexAPIException(response)
-     
+
     def list_resources(self, project_slug):
         """
         List all resources in a project
@@ -144,13 +140,6 @@ class TransifexAPI(object):
             'name': resource_name, 'slug': resource_slug, 'content': content,
             'i18n_type': 'PO'
         }
-#        slug
-#        name
-#        accept_translations
-#        source_language
-#        mimetype
-#        content (in case of sending the content as one string)
-#        category
 
         response = requests.post(
              url, data=json.dumps(data), auth=self._auth, headers=headers,

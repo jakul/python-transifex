@@ -3,9 +3,27 @@ from transifex.api import TransifexAPI
 from mock import patch, Mock, MagicMock
 import json
 from transifex.exceptions import InvalidSlugException, TransifexAPIException
-import StringIO
-import requests
-from requests.models import Response
+
+
+
+def _check_for_new_project_kwargs(*args, **kwargs):
+    response = Mock()
+    data = json.loads(kwargs.get('data', "{}"))
+    required_kwargs = ['source_language_code', 'name', 'slug',
+                       'repository_url', 'private']
+    missing_keys = set(required_kwargs) - set(data.keys())
+    print(data)
+    if missing_keys:
+        response.status_code = 400
+        response.content = missing_keys
+    elif not data['private'] and data['repository_url'] is None:
+        response.status_code = 400
+        response.content = 'repository_url is required for public ' \
+                           'repositories'
+    else:
+        response.status_code = 201
+
+    return response
 
 class TransifexAPITest(TestCase):
     
@@ -17,25 +35,13 @@ class TransifexAPITest(TestCase):
         self.api = TransifexAPI(**data)
         
     @patch('requests.post')
-    def test_new_project_with_required_args(self, mock_requests):
+    def test_new_public_project_with_required_args(self, mock_requests):
         """
         Test creating a new project with only the required arguments
         """
+        mock_requests.side_effect = _check_for_new_project_kwargs
+        self.api.new_project(slug='abc', repository_url='http://abc.com')
 
-        def side_effect(*args, **kwargs):
-            response = Mock()
-            data = json.loads(kwargs.get('data', "{}"))
-            if 'source_language_code' in data and 'name' in data and 'slug' in \
-            data:
-                response.status_code = 201
-            else:
-                response.status_code = 400
-                
-            return response
-        
-        mock_requests.side_effect = side_effect 
-        self.api.new_project(slug='abc')
-    
     def test_new_project_bad_slug(self):
         """
         Test the `new_project` api call when the slug is invalid
@@ -49,7 +55,16 @@ class TransifexAPITest(TestCase):
         self.assertRaises(InvalidSlugException, self.api.new_project,
             slug='%@$'
         )
-        
+
+    def test_new_project_no_repository_url(self):
+        """
+        Test the `new_project` api call when no repository_url is passed to a
+        public project
+        """
+        self.assertRaises(TransifexAPIException, self.api.new_project,
+            slug='fdsfs', private=False
+        )
+
     @patch('requests.post')
     def test_new_project_with_optional_args(self, mock_requests):
         """
