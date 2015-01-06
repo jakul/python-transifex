@@ -1,9 +1,10 @@
 # python-transifex
-A python API to the Transifex translation service (www.transifex.com). This API wrapper makes it easier to communicate with Transifex. The wrapper does not expose all of the underlying functionality of the Transifex API.
-
-This wrapper is compatible with both www.transifex.com and Transifex Community Edition (self hosted).
-
 [![build-status-image]][travis-url]
+
+**A Python API to the Transifex translation service (www.transifex.com).**
+
+This API wrapper makes it easier to communicate with Transifex. The wrapper does not expose all of the underlying functionality of the Transifex API. This wrapper is compatible with both www.transifex.com and Transifex Community Edition (self hosted).
+
 
 ## Usage
 
@@ -86,5 +87,5 @@ To download the translations and store them in a local file run the following:
 
     In [13]: t.get_translation('helloworld5', 'pofilepo', 'pt-br', '/src/python-transifex/pofile_ptbr.po')
 
-[build-status-image]: https://api.travis-ci.org/jakul/python-transifex.svg?branch=master
+[build-status-image]: https://travis-ci.org/jakul/python-transifex.svg?branch=master
 [travis-url]: https://travis-ci.org/jakul/python-transifex
