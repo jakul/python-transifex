@@ -18,7 +18,6 @@ To connect to transifex:
 
 ### Projects
 #### Create a new public project
-
 Public projects require a `repository_url`. This can be any valid URL. 
 Private projects do mnot require this, but you must have a Transifex plan 
 which allows private projects.
@@ -34,6 +33,8 @@ which allows private projects.
     Out[6]: False
 
 ### Resources
+A resource is a set of strings which need to be translated into one or more 
+other languages.
 
 #### Create a resource
 
@@ -54,6 +55,7 @@ which allows private projects.
 #### Delete a resource
 
     In [9]: t.delete_resource('helloworld5', 'anotherpofile')
+    
 
 #### List the languages this resource is translated into
 
@@ -65,6 +67,9 @@ which allows private projects.
 
 
 #### Uploading translations to Transifex
+If you have up to date translations in your codebase, you should update them to 
+Transifex so that the translators don't have to translate everything from 
+scratch.
 
     In [12]: t.new_translation('helloworld5', 'pofilepo', 'pt-br','/src/python-transifex/pofile.po')
     Out[12]: 
