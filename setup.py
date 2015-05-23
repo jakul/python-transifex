@@ -19,7 +19,9 @@ setup(
     url='https://github.com/jakul/python-transifex',
     license='BSD',
     packages=find_packages(),
-    install_requires=[],
+    include_package_data=True,
+    zip_safe=False,
+    install_requires=['requests>=0.12.1'],
     classifiers=[
         'Environment :: Web Environment',
         'Intended Audience :: Developers',
